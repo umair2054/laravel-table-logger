@@ -1,6 +1,17 @@
 {
     "name": "umairhanif/laravel-table-logger",
-    "description": "Automatically log Laravel model changes with dynamic table creation",
+    "version": "1.0.0",
+    "description": "Automated Laravel model auditing and application log management with dynamic table creation. Tracks all model changes (create/update/delete) in dedicated log tables while maintaining native Laravel conventions. Provides comprehensive activity monitoring without database modifications.",
+    "authors": [
+        {
+            "name": "Umair Hanif",
+            "email": "umair2054@gmail.com",
+            "homepage": "https://umairhanif.com",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "type": "library",
     "license": "MIT",
     "require": {
@@ -21,13 +32,5 @@
                 "TableLogger": "UmairHanif\\LaravelTableLogger\\Facades\\TableLogger"
             }
         }
-    },
-    "authors": [
-        {
-            "name": "Umair Hanif",
-            "email": "umair2054@gmail.com"
-        }
-    ],
-    "minimum-stability": "stable",
-    "prefer-stable": false
+    }
 }
