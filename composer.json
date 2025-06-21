@@ -10,6 +10,12 @@
             "role": "Developer"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/umairhanifdev/laravel-table-logger"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true,
     "type": "library",
