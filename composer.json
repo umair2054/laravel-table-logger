@@ -1,0 +1,19 @@
+{
+    "name": "umairhanif/laravel-table-logger",
+    "description": "Automatically log Laravel model changes with dynamic table creation",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Umairhanif\\LaravelTableLogger\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Umair Hanif",
+            "email": "umair2054@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
