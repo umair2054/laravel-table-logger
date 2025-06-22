@@ -1,0 +1,186 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome file</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="laravel-table-logger">Laravel Table Logger</h1>
+<p>A Laravel package to automatically or manually log model events (create, update, delete) either to the database or file system, based on <code>.env</code> configuration.</p>
+<hr>
+<h2 id="🚀-features">🚀 Features</h2>
+<ul>
+<li>
+<p>🔁 Automatically logs <code>create</code>, <code>update</code>, <code>delete</code> actions on models</p>
+</li>
+<li>
+<p>⚙️ Supports both database and file logging via <code>.env</code></p>
+</li>
+<li>
+<p>🧠 Easily retrieve logs using model relationships</p>
+</li>
+<li>
+<p>🔧 Manually log any action without relying on model events</p>
+</li>
+<li>
+<p>📁 Structured file-based logs per table and record</p>
+</li>
+<li>
+<p>📦 Simple to integrate via Eloquent traits</p>
+</li>
+</ul>
+<hr>
+<h2 id="📦-installation">📦 Installation</h2>
+<pre class=" language-bash"><code class="prism  language-bash">
+composer  require  umairhanifdev/laravel-table-logger
+
+</code></pre>
+<hr>
+<h2 id="⚙️-configuration">⚙️ Configuration</h2>
+<p>Publish config (optional):</p>
+<pre class=" language-bash"><code class="prism  language-bash">
+php  artisan  vendor:publish  --tag<span class="token operator">=</span>config
+
+</code></pre>
+<p>Set logging driver in your <code>.env</code>:</p>
+<pre class=" language-env"><code class="prism  language-env">
+TABLE_LOGGER_DRIVER=database # or "file"
+
+</code></pre>
+<ul>
+<li>
+<p><strong>database</strong>: Logs are stored in <code>{table_name}_logs</code> tables</p>
+</li>
+<li>
+<p><strong>file</strong>: Logs are stored in <code>storage/logs/umairhanifdev/{table}/{id}.log</code></p>
+</li>
+</ul>
+<hr>
+<h2 id="📘-usage">📘 Usage</h2>
+<h3 id="eloquent-model-logging">1. Eloquent Model Logging</h3>
+<h4 id="step-1-add-traits">Step 1: Add Traits</h4>
+<p>Add the following traits to your Eloquent model. Once added, logs will automatically be generated on <code>create</code>, <code>update</code>, and <code>delete</code> actions.</p>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token keyword">use</span> <span class="token package">UmairHanif<span class="token punctuation">\</span>LaravelTableLogger<span class="token punctuation">\</span>Traits<span class="token punctuation">\</span>Loggable</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> <span class="token package">UmairHanif<span class="token punctuation">\</span>LaravelTableLogger<span class="token punctuation">\</span>Traits<span class="token punctuation">\</span>HasLogs</span><span class="token punctuation">;</span>
+
+  
+
+<span class="token keyword">class</span>  <span class="token class-name">ExaminationReport</span>  <span class="token keyword">extends</span>  <span class="token class-name">Model</span>
+
+<span class="token punctuation">{</span>
+
+<span class="token keyword">use</span>  <span class="token package">Loggable</span><span class="token punctuation">,</span> HasLogs<span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+</code></pre>
+<hr>
+<h3 id="retrieve-stored-logs">2. Retrieve Stored Logs</h3>
+<h4 id="logs-for-a-single-model-record">Logs for a Single Model Record</h4>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token variable">$report</span> <span class="token operator">=</span> ExaminationReport<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token variable">$id</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$reportLogs</span> <span class="token operator">=</span> <span class="token variable">$report</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">logs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+</code></pre>
+<h4 id="logs-for-multiple-records">Logs for Multiple Records</h4>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token variable">$examReports</span> <span class="token operator">=</span> ExaminationReport<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'user_id'</span><span class="token punctuation">,</span> <span class="token number">16</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$examinationLogs</span> <span class="token operator">=</span> <span class="token variable">$examReports</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">logsBatch</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'this_log_action'</span><span class="token punctuation">,</span> <span class="token string">'update'</span><span class="token punctuation">)</span> <span class="token comment">// optional filter</span>
+
+<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+</code></pre>
+<hr>
+<h3 id="manual-logging-no-eloquent-required">3. Manual Logging (No Eloquent Required)</h3>
+<p>You can manually log an action without triggering Eloquent events:</p>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token keyword">use</span> <span class="token package">UmairHanif<span class="token punctuation">\</span>LaravelTableLogger<span class="token punctuation">\</span>Helpers<span class="token punctuation">\</span>LoggerLog</span><span class="token punctuation">;</span>
+
+  
+
+LoggerLog<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">logAction</span><span class="token punctuation">(</span><span class="token string">'examination_reports'</span><span class="token punctuation">,</span> <span class="token variable">$id</span><span class="token punctuation">,</span> <span class="token string">'delete'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token constant">DB</span><span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">table</span><span class="token punctuation">(</span><span class="token string">'examination_reports'</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token variable">$id</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">delete</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+</code></pre>
+<hr>
+<h3 id="nested-logs-via-relationships">4. Nested Logs via Relationships</h3>
+<p>If your model (e.g., <code>User</code>) has child models using logs (e.g., <code>ExaminationReport</code>), you can retrieve logs as:</p>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token variable">$user</span> <span class="token operator">=</span> User<span class="token punctuation">:</span><span class="token punctuation">:</span><span class="token function">with</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'examination'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token variable">$q</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+<span class="token variable">$q</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">whereStatus</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">orderBy</span><span class="token punctuation">(</span><span class="token string">'id'</span><span class="token punctuation">,</span> <span class="token string">'DESC'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token variable">$id</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  
+
+<span class="token comment">// Logs for the parent model (User)</span>
+
+<span class="token variable">$usersLogs</span> <span class="token operator">=</span> <span class="token variable">$user</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">logs</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  
+
+<span class="token comment">// Logs for nested model (Examinations)</span>
+
+<span class="token variable">$examinationLogs</span> <span class="token operator">=</span> <span class="token function">collect</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token variable">$user</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">examination</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+<span class="token variable">$examinationLogs</span> <span class="token operator">=</span> <span class="token variable">$user</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token property">examination</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">logsBatch</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">where</span><span class="token punctuation">(</span><span class="token string">'this_log_action'</span><span class="token punctuation">,</span> <span class="token string">'update'</span><span class="token punctuation">)</span> <span class="token comment">//optional - to filter the logs futher</span>
+
+<span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token punctuation">}</span>
+
+</code></pre>
+<hr>
+<h2 id="🗃️-log-table-naming-convention">🗃️ Log Table Naming Convention</h2>
+<p>Log tables are automatically named using the singular form of the model table name + <code>_logs</code>. Example: <code>users</code> → <code>user_logs</code></p>
+<p>You can define custom mappings for irregular plurals:</p>
+<pre class=" language-php"><code class="prism  language-php">
+<span class="token string">'irregular_plurals'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+
+<span class="token string">'people'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'person'</span><span class="token punctuation">,</span>
+
+<span class="token string">'children'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'child'</span><span class="token punctuation">,</span>
+
+<span class="token string">'men'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'man'</span><span class="token punctuation">,</span>
+
+<span class="token string">'women'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'woman'</span><span class="token punctuation">,</span>
+
+<span class="token punctuation">]</span><span class="token punctuation">,</span>
+
+</code></pre>
+<hr>
+<h2 id="📂-file-based-log-format">📂 File-based Log Format</h2>
+<p>When using <code>TABLE_LOGGER_DRIVER=file</code>, logs are saved as JSON files in:</p>
+<pre><code>
+storage/logs/umairhanifdev/{table}/{id}.log
+
+</code></pre>
+<p>Each file will contain all logs of a specific record.</p>
+<hr>
+<h2 id="📝-license">📝 License</h2>
+<p>MIT</p>
+<hr>
+<p>Built with ❤️ by Umair Hanif</p>
+<p>🌐 <a href="https://umairhanif.com">umairhanif.com</a></p>
+<p>📫 <a href="mailto:hello@umairhanif.com">hello@umairhanif.com</a></p>
+<p>🔗 <a href="https://www.linkedin.com/in/umair-hanif-a95179155/">LinkedIn</a></p>
+</div>
+</body>
+
+</html>
