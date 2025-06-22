@@ -7,6 +7,11 @@ return [
     'log_table_suffix' => '_logs',
 
     /*
+     * Log store pref
+     */
+    'driver' => env('TABLE_LOGGER_DRIVER', 'database'),
+
+    /*
      * Enable/disable logging
      */
     'enabled' => env('TABLE_LOGGER_ENABLED', true),
@@ -20,10 +25,31 @@ return [
      * Irregular plural to singular mappings
      */
     'irregular_plurals' => [
-        'people' => 'person',
-        'children' => 'child',
-        'men' => 'man',
-        'women' => 'woman',
-        // Add more as needed
+        'child'   => 'children',
+        'person'  => 'people',
+        'man'     => 'men',
+        'woman'   => 'women',
+        'mouse'   => 'mice',
+        'goose'   => 'geese',
+        'tooth'   => 'teeth',
+        'foot'    => 'feet',
+        'ox'      => 'oxen',
+        'louse'   => 'lice',
+        'die'     => 'dice',
+        'criterion' => 'criteria',
+        'phenomenon'=> 'phenomena',
+        'index'   => 'indices', 
+        'appendix'=> 'appendices',
+        'cactus'  => 'cacti',
+        'focus'   => 'foci',
+        'fungus'  => 'fungi',
+        'nucleus' => 'nuclei',
+        'syllabus'=> 'syllabi',
+        'analysis'=> 'analyses',
+        'diagnosis'=> 'diagnoses',
+        'thesis'  => 'theses',
+        'basis'   => 'bases',
+        'crisis'  => 'crises',
+        'phenomenon'=>'phenomena',
     ],
 ];

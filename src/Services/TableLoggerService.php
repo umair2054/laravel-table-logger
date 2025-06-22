@@ -14,46 +14,91 @@ class TableLoggerService
      */
     public function handleModelChanges(Model $model, string $action): void
     {
-        if (!config('table-logger.enabled')) {
-            return;
-        }
+        if (!config('table-logger.enabled')) return;
 
-        $logTableName = $this->getProperLogTableName($model->getTable());
+        $driver = config('table-logger.driver', 'database');
 
-        if (config('table-logger.auto_create_log_tables') && !Schema::hasTable($logTableName)) {
-            $this->createLogTable($model->getTable(), $logTableName);
-        }
+        if ($driver === 'database') {
+            $logTableName = self::getProperLogTableName($model->getTable());
 
-        if (Schema::hasTable($logTableName)) {
-            $this->syncLogTableColumns($model->getTable(), $logTableName);
-
-            if ($action === 'update') {
-                $changes = $model->getChanges();
-
-                // Define specific fields you want to log separately
-                $specialTrackedFields = [
-                    'password' => 'password_changed',
-                    'email'    => 'email_changed',
-                ];
-
-                foreach ($specialTrackedFields as $field => $specialAction) {
-                    if (array_key_exists($field, $changes)) {
-                        $this->logChange($model, $logTableName, $specialAction);
-                    }
-                }
-
-                // Always log the generic update once
-                $this->logChange($model, $logTableName, 'update');
-            } else {
-                $this->logChange($model, $logTableName, $action);
+            if (config('table-logger.auto_create_log_tables') && !Schema::hasTable($logTableName)) {
+                self::createLogTable($model->getTable(), $logTableName);
             }
+
+            if (Schema::hasTable($logTableName)) {
+                $this->syncLogTableColumns($model->getTable(), $logTableName);
+
+                if ($action === 'update') {
+                    $changes = $model->getChanges();
+
+                    $specialTrackedFields = ['password' => 'password_changed', 'email' => 'email_changed'];
+                    foreach ($specialTrackedFields as $field => $specialAction) {
+                        if (array_key_exists($field, $changes)) {
+                            $this->logChange($model, $logTableName, $specialAction);
+                        }
+                    }
+
+                    $this->logChange($model, $logTableName, 'update');
+                } else {
+                    $this->logChange($model, $logTableName, $action);
+                }
+            }
+        } elseif ($driver === 'file') {
+            $this->logToFile($model, $action);
         }
     }
+
+
+    /**
+     * @param instance $model, string $action
+     * @return void
+     * Store logs in file
+     */
+
+    protected function logToFile(Model $model, string $action): void
+    {
+        $table = $model->getTable();
+        $id = $model->getKey();
+
+        $dir = storage_path("logs/umairhanifdev/{$table}");
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $logFile = "{$dir}/{$id}.log";
+
+        $changes = $action === 'update' ? $model->getChanges() : $model->getAttributes();
+
+        $entry = [
+            'timestamp' => now()->toDateTimeString(),
+            'this_log_action' => $action,
+            'this_log_url' => request()->fullUrl(),
+            'this_log_ip' => request()->ip(),
+            'this_log_user_agent' => request()->userAgent(),
+            'this_log_modified_by' => auth()->check() ? auth()->id() : null,
+            'data' => $action === 'update' ? $this->formatChanges($model) : $changes,
+        ];
+
+        file_put_contents($logFile, json_encode($entry, JSON_PRETTY_PRINT) . PHP_EOL, FILE_APPEND);
+    }
+
+    protected function formatChanges(Model $model): array
+    {
+        $changes = [];
+        foreach ($model->getChanges() as $key => $new) {
+            $old = $model->getOriginal($key);
+            $changes[$key] = ['old' => $old, 'new' => $new];
+        }
+        return $changes;
+    }
+
+
 
     /**
      * Convert table name to proper log table name
      */
-    public function getProperLogTableName(string $tableName): string
+    public static function getProperLogTableName(string $tableName): string
     {
         $irregulars = config('table-logger.irregular_plurals', []);
 
@@ -108,7 +153,7 @@ class TableLoggerService
     /**
      * Create a log table based on the original table structure
      */
-    protected function createLogTable(string $originalTable, string $logTableName): void
+    public static function createLogTable(string $originalTable, string $logTableName): void
     {
         $columns = DB::select("SHOW COLUMNS FROM `$originalTable`");
 
