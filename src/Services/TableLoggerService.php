@@ -142,11 +142,11 @@ class TableLoggerService
         }
 
         // Add logging specific columns
-        $columnDefinitions[] = '`original_id` BIGINT UNSIGNED NULL COMMENT "ID of the original record"';
-        $columnDefinitions[] = '`action` VARCHAR(30) NOT NULL COMMENT "create/update/delete"';
-        $columnDefinitions[] = '`changes` JSON NULL COMMENT "Old and new values when updated"';
-        $columnDefinitions[] = '`changed_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
-        $columnDefinitions[] = '`user_id` BIGINT UNSIGNED NULL COMMENT "Who made the change"';
+        $columnDefinitions[] = '`tbl_original_id` BIGINT UNSIGNED NULL COMMENT "ID of the original record"';
+        $columnDefinitions[] = '`this_log_action` VARCHAR(30) NOT NULL COMMENT "create/update/delete"';
+        $columnDefinitions[] = '`this_log_modified_by` BIGINT UNSIGNED NULL COMMENT "Who made the change"';
+        $columnDefinitions[] = '`this_log_changes` JSON NULL COMMENT "Old and new values when updated"';
+        $columnDefinitions[] = '`this_log_changed_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
 
         $createTableSql = "CREATE TABLE `$logTableName` (" . 
                         implode(', ', $columnDefinitions) . 
