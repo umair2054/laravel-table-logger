@@ -75,9 +75,13 @@ class TableLoggerService
     {
         $logData = $model->getAttributes();
 
-        $logData['original_id'] = $logData['id'] ?? null;
-        $logData['action'] = $action;
-        $logData['changed_at'] = now();
+        $logData['tbl_original_id'] = $logData['id'] ?? null;
+        $logData['this_log_action'] = $action;
+        $logData['this_log_ip'] = request()->ip();
+        $logData['this_log_user_agent'] = request()->userAgent();
+        $logData['this_log_url'] = request()->fullUrl();
+        $logData['this_log_changed_at'] = now();
+        $logData['this_log_modified_by'] = auth()->check() ? auth()->id() : null;
 
         unset($logData['id']);
 
@@ -92,9 +96,9 @@ class TableLoggerService
                 ];
             }
 
-            $logData['changes'] = json_encode($changes);
+            $logData['this_log_changes'] = json_encode($changes);
         } else {
-            $logData['changes'] = null;
+            $logData['this_log_changes'] = null;
         }
 
         DB::table($logTableName)->insert($logData);
@@ -144,6 +148,9 @@ class TableLoggerService
         // Add logging specific columns
         $columnDefinitions[] = '`tbl_original_id` BIGINT UNSIGNED NULL COMMENT "ID of the original record"';
         $columnDefinitions[] = '`this_log_action` VARCHAR(30) NOT NULL COMMENT "create/update/delete"';
+        $columnDefinitions[] = '`this_log_ip` VARCHAR(45) NULL COMMENT "IP address of the user"';
+        $columnDefinitions[] = '`this_log_user_agent` TEXT NULL COMMENT "User Agent info"';
+        $columnDefinitions[] = '`this_log_url` TEXT NULL COMMENT "Request URL"';
         $columnDefinitions[] = '`this_log_modified_by` BIGINT UNSIGNED NULL COMMENT "Who made the change"';
         $columnDefinitions[] = '`this_log_changes` JSON NULL COMMENT "Old and new values when updated"';
         $columnDefinitions[] = '`this_log_changed_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP';
