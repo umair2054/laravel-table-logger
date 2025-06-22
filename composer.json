@@ -1,6 +1,6 @@
 {
     "name": "umairhanifdev/laravel-table-logger",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "description": "Automated Laravel model auditing and application log management with dynamic table creation. Tracks all model changes (create/update/delete) in dedicated log tables while maintaining native Laravel conventions. Provides comprehensive activity monitoring without database modifications.",
     "authors": [
         {
